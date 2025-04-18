@@ -1,0 +1,31 @@
+{
+    "domains":
+        {
+            "Include": [
+                "*.usitc.gov",
+                "*.uspto.gov",
+                "*.trade.gov",
+                "*.census.gov",
+                "*.bls.gov",
+                "*.wto.org",
+                "*.finance.yahoo.com",
+                "*.bloomberg.com",
+                "*.reddit.com",
+                "*.whitehouse.gov/news",
+                "*.whitehouse.gov/briefing-room",
+                "*.whitehouse.gov/fact-sheets",
+                "*.whitehouse.gov/speeches",
+                "*.whitehouse.gov/presidential-actions/"
+            ],
+            "Exclude": [
+                "*.indamart.com",
+                "*.alibaba.com",
+                "*.amazon.com",
+                "*.ebay.com",
+                "*.walmart.com",
+                "*.target.com",
+                "*.costco.com",
+                "*.bestbuy.com"
+            ]
+        }
+}
