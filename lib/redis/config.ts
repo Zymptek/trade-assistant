@@ -18,6 +18,63 @@ export const redisConfig: RedisConfig = {
 let localRedisClient: RedisClientType | null = null
 let redisWrapper: RedisWrapper | null = null
 
+// Simple in-memory fallback storage
+let memoryStore: Record<string, Record<string, string>> = {};
+
+// Memory store wrapper class that mimics RedisWrapper
+class MemoryStoreWrapper {
+  async zrange(key: string, start: number, stop: number, options?: { rev: boolean }): Promise<string[]> {
+    return [];
+  }
+
+  async hgetall<T extends Record<string, unknown>>(key: string): Promise<T | null> {
+    return (memoryStore[key] as T) || null;
+  }
+
+  pipeline() {
+    return {
+      hgetall: () => this,
+      del: () => this,
+      zrem: () => this,
+      hmset: () => this,
+      zadd: () => this,
+      exec: async () => []
+    };
+  }
+
+  async hmset(key: string, value: Record<string, any>): Promise<'OK'> {
+    if (!memoryStore[key]) {
+      memoryStore[key] = {};
+    }
+    
+    Object.entries(value).forEach(([field, val]) => {
+      memoryStore[key][field] = String(val);
+    });
+    
+    return 'OK';
+  }
+
+  async zadd(key: string, score: number, member: string): Promise<number> {
+    return 1;
+  }
+
+  async del(key: string): Promise<number> {
+    if (memoryStore[key]) {
+      delete memoryStore[key];
+      return 1;
+    }
+    return 0;
+  }
+
+  async zrem(key: string, member: string): Promise<number> {
+    return 0;
+  }
+
+  async close(): Promise<void> {
+    // No need to close in-memory store
+  }
+}
+
 // Wrapper class for Redis client
 export class RedisWrapper {
   private client: Redis | RedisClientType
@@ -203,90 +260,71 @@ class LocalPipelineWrapper {
 // Function to get a Redis client
 export async function getRedisClient(): Promise<RedisWrapper> {
   if (redisWrapper) {
-    return redisWrapper
+    return redisWrapper;
   }
 
   if (redisConfig.useLocalRedis) {
     if (!localRedisClient) {
-      const localRedisUrl =
-        redisConfig.localRedisUrl || 'redis://localhost:6379'
+      const localRedisUrl = redisConfig.localRedisUrl || 'redis://localhost:6379';
       try {
-        localRedisClient = createClient({ url: localRedisUrl })
-        await localRedisClient.connect()
+        localRedisClient = createClient({ url: localRedisUrl });
+        await localRedisClient.connect();
+        redisWrapper = new RedisWrapper(localRedisClient);
       } catch (error) {
         if (error instanceof Error) {
           if (error.message.includes('ECONNREFUSED')) {
-            console.error(
-              `Failed to connect to local Redis at ${localRedisUrl}: Connection refused. Is Redis running?`
-            )
+            console.warn(`Failed to connect to local Redis at ${localRedisUrl}: Connection refused. Using in-memory fallback.`);
           } else if (error.message.includes('ETIMEDOUT')) {
-            console.error(
-              `Failed to connect to local Redis at ${localRedisUrl}: Connection timed out. Check your network or Redis server.`
-            )
+            console.warn(`Failed to connect to local Redis at ${localRedisUrl}: Connection timed out. Using in-memory fallback.`);
           } else if (error.message.includes('ENOTFOUND')) {
-            console.error(
-              `Failed to connect to local Redis at ${localRedisUrl}: Host not found. Check your Redis URL.`
-            )
+            console.warn(`Failed to connect to local Redis at ${localRedisUrl}: Host not found. Using in-memory fallback.`);
           } else {
-            console.error(
-              `Failed to connect to local Redis at ${localRedisUrl}:`,
-              error.message
-            )
+            console.warn(`Failed to connect to local Redis at ${localRedisUrl}: ${error.message}. Using in-memory fallback.`);
           }
         } else {
-          console.error(
-            `An unexpected error occurred while connecting to local Redis at ${localRedisUrl}:`,
-            error
-          )
+          console.warn(`An unexpected error occurred while connecting to local Redis at ${localRedisUrl}. Using in-memory fallback.`);
         }
-        throw new Error(
-          'Failed to connect to local Redis. Check your configuration and ensure Redis is running.'
-        )
+        
+        console.info('Using in-memory storage as Redis fallback. Note: Data will be lost on server restart.');
+        redisWrapper = new MemoryStoreWrapper() as unknown as RedisWrapper;
+        return redisWrapper;
       }
+    } else {
+      redisWrapper = new RedisWrapper(localRedisClient);
     }
-    redisWrapper = new RedisWrapper(localRedisClient)
   } else {
-    if (
-      !redisConfig.upstashRedisRestUrl ||
-      !redisConfig.upstashRedisRestToken
-    ) {
-      throw new Error(
-        'Upstash Redis configuration is missing. Please check your environment variables.'
-      )
+    if (!redisConfig.upstashRedisRestUrl || !redisConfig.upstashRedisRestToken) {
+      console.warn('Upstash Redis configuration is missing. Using in-memory fallback.');
+      redisWrapper = new MemoryStoreWrapper() as unknown as RedisWrapper;
+      return redisWrapper;
     }
+    
     try {
       redisWrapper = new RedisWrapper(
         new Redis({
           url: redisConfig.upstashRedisRestUrl,
           token: redisConfig.upstashRedisRestToken
         })
-      )
+      );
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('unauthorized')) {
-          console.error(
-            'Failed to connect to Upstash Redis: Unauthorized. Check your Upstash Redis token.'
-          )
+          console.warn('Failed to connect to Upstash Redis: Unauthorized. Using in-memory fallback.');
         } else if (error.message.includes('not found')) {
-          console.error(
-            'Failed to connect to Upstash Redis: URL not found. Check your Upstash Redis URL.'
-          )
+          console.warn('Failed to connect to Upstash Redis: URL not found. Using in-memory fallback.');
         } else {
-          console.error('Failed to connect to Upstash Redis:', error.message)
+          console.warn(`Failed to connect to Upstash Redis: ${error.message}. Using in-memory fallback.`);
         }
       } else {
-        console.error(
-          'An unexpected error occurred while connecting to Upstash Redis:',
-          error
-        )
+        console.warn('An unexpected error occurred while connecting to Upstash Redis. Using in-memory fallback.');
       }
-      throw new Error(
-        'Failed to connect to Upstash Redis. Check your configuration and credentials.'
-      )
+      
+      console.info('Using in-memory storage as Redis fallback. Note: Data will be lost on server restart.');
+      redisWrapper = new MemoryStoreWrapper() as unknown as RedisWrapper;
     }
   }
 
-  return redisWrapper
+  return redisWrapper;
 }
 
 // Function to close the Redis connection

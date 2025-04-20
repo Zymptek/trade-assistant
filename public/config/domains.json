@@ -2,6 +2,7 @@
     "domains":
         {
             "Include": [
+                "*.ustr.gov",
                 "*.usitc.gov",
                 "*.uspto.gov",
                 "*.trade.gov",

@@ -1,5 +1,6 @@
-import { Chat } from '@/components/chat'
+import { ClientChatWrapper } from '@/components/client-chat-wrapper'
 import { getChat } from '@/lib/actions/chat'
+import { getCurrentUser } from '@/lib/auth/session'
 import { getModels } from '@/lib/config/models'
 import { convertToUIMessages } from '@/lib/utils'
 import { notFound, redirect } from 'next/navigation'
@@ -20,7 +21,13 @@ export async function generateMetadata(props: {
 export default async function SearchPage(props: {
   params: Promise<{ id: string }>
 }) {
-  const userId = 'anonymous'
+  // Check if the user is authenticated
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect('/login')
+  }
+  
+  const userId = user.id
   const { id } = await props.params
 
   const chat = await getChat(id, userId)
@@ -31,10 +38,10 @@ export default async function SearchPage(props: {
     redirect('/')
   }
 
-  if (chat?.userId !== userId) {
+  if (chat?.userId !== userId && chat?.userId !== 'anonymous') {
     notFound()
   }
 
   const models = await getModels()
-  return <Chat id={id} savedMessages={messages} models={models} />
+  return <ClientChatWrapper id={id} savedMessages={messages} models={models} />
 }

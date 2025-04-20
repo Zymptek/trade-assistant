@@ -1,4 +1,4 @@
-import { Chat } from '@/components/chat'
+import { ClientChatWrapper } from '@/components/client-chat-wrapper'
 import { getSharedChat } from '@/lib/actions/chat'
 import { getModels } from '@/lib/config/models'
 import { convertToUIMessages } from '@/lib/utils'
@@ -33,7 +33,7 @@ export default async function SharePage(props: {
 
   const models = await getModels()
   return (
-    <Chat
+    <ClientChatWrapper
       id={chat.id}
       savedMessages={convertToUIMessages(chat.messages)}
       models={models}
