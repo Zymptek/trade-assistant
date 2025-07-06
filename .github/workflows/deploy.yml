@@ -1,0 +1,22 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Trigger Vercel Deployment
+      run: |
+        curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_vYcmlAcuG4r4F2vkjkRfRP35bn3c/uY7YzkVHoz"
+      
+    - name: Deploy Status
+      run: echo "Deployment triggered successfully!" 
