@@ -11,6 +11,7 @@ import Textarea from 'react-textarea-autosize'
 import { EmptyScreen } from './empty-screen'
 import { ModelSelector } from './model-selector'
 import { Button } from './ui/button'
+import ZymptekLogo from './zymptek-logo'
 
 interface ChatPanelProps {
   input: string
@@ -100,24 +101,25 @@ export function ChatPanel({
         'mx-auto w-full',
         messages.length > 0
           ? 'fixed bottom-0 left-0 right-0 bg-background'
-          : 'fixed bottom-8 left-0 right-0 top-6 flex flex-col items-center justify-center'
+          : 'flex flex-col items-center justify-center min-h-[60vh] py-8'
       )}
     >
       {messages.length === 0 && (
-        <div className="mb-10 flex flex-col items-center gap-4">
-          <div className="w-32 h-32 relative">
-            <img 
-              src="/images/zymptek_logo_no_background.png" 
-              alt="Zymptek Logo" 
-              className="w-full h-full object-contain"
-            />
+        <div className="mb-12 flex flex-col items-center gap-6">
+          <div className="w-48 h-48 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 rounded-full blur-xl"></div>
+            <div className="relative w-full h-full">
+              <ZymptekLogo className="w-full h-full" enableGlow={true} variant="icon-only" />
+            </div>
           </div>
-          <p className="text-center text-3xl font-semibold text-primary">
-            Zymptek Trade Assistant
-          </p>
-          <p className="text-center text-muted-foreground max-w-md">
-            Ask me about HTS codes, tariffs, customs regulations, and international trade
-          </p>
+          <div className="text-center space-y-3">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Zymptek Trade Assistant
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
+              Your AI-powered companion for international trade. Get instant insights on HTS codes, tariffs, and customs regulations.
+            </p>
+          </div>
         </div>
       )}
       <form
@@ -127,7 +129,7 @@ export function ChatPanel({
           messages.length > 0 ? 'px-2 pb-4' : 'px-6'
         )}
       >
-        <div className="relative flex flex-col w-full gap-2 bg-muted rounded-3xl border border-input">
+        <div className="relative flex flex-col w-full gap-2 bg-card rounded-3xl border border-input shadow-lg backdrop-blur-sm">
           <Textarea
             ref={inputRef}
             name="input"
@@ -136,11 +138,11 @@ export function ChatPanel({
             tabIndex={0}
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
-            placeholder="Ask a question..."
+            placeholder="Ask about HTS codes, tariffs, or trade regulations..."
             spellCheck={false}
             value={input}
             disabled={isLoading || isToolInvocationInProgress()}
-            className="resize-none w-full min-h-12 bg-transparent border-0 p-4 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="resize-none w-full min-h-14 bg-transparent border-0 p-5 text-base placeholder:text-muted-foreground/70 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             onChange={e => {
               handleInputChange(e)
               setShowEmptyScreen(e.target.value.length === 0)
@@ -166,7 +168,7 @@ export function ChatPanel({
           />
 
           {/* Bottom menu area */}
-          <div className="flex items-center justify-between p-3">
+          <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-2">
               {
                 models && models.length > 1 ? (
@@ -174,24 +176,26 @@ export function ChatPanel({
                 ):<></>
               }
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {messages.length > 0 && (
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={handleNewChat}
-                  className="shrink-0 rounded-full group"
+                  className="shrink-0 rounded-full group hover:bg-accent/50 transition-all duration-200"
                   type="button"
                   disabled={isLoading || isToolInvocationInProgress()}
                 >
-                  <MessageCirclePlus className="size-4 group-hover:rotate-12 transition-all" />
+                  <MessageCirclePlus className="size-4 group-hover:rotate-12 transition-all duration-200" />
                 </Button>
               )}
               <Button
                 type={isLoading ? 'button' : 'submit'}
                 size={'icon'}
-                variant={'outline'}
-                className={cn(isLoading && 'animate-pulse', 'rounded-full')}
+                className={cn(
+                  isLoading && 'animate-pulse', 
+                  'rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 border-0 shadow-lg text-white transition-all duration-200 hover:scale-105'
+                )}
                 disabled={
                   (input.length === 0 && !isLoading) ||
                   isToolInvocationInProgress()

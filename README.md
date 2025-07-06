@@ -5,6 +5,8 @@
   <p>AI-powered Custom Broker chat application for international trade professionals</p>
 </div>
 
+> **Note**: The application now uses a new React SVG logo component (`ZymptekLogo`) with a beautiful gradient and optional glow animation throughout the interface.
+
 ## Overview
 
 Zymptek Trade Assistant is a specialized AI chat application designed specifically for customs brokers and international trade professionals. It provides instant access to accurate information about HTS codes, tariffs, and trade regulations through an intuitive conversational interface.

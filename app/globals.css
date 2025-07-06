@@ -4,91 +4,115 @@
 
 @layer base {
   :root {
-    --background: #f2f2f2;
-    --foreground: #1b1b1b;
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
 
-    --card: #e6e6e6;
-    --card-foreground: #444444;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
 
-    --popover: #f2f2f2;
-    --popover-foreground: #1b1b1b;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
 
-    --primary: #ff8c00;
-    --primary-foreground: #ffffff;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: #444444;
-    --secondary-foreground: #ffffff;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
 
-    --muted: #e6e6e6;
-    --muted-foreground: #444444;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: #1b1b1b;
-    --accent-foreground: #f2f2f2;
+    --accent: 220 14% 96%;
+    --accent-foreground: 224 71% 4%;
 
-    --destructive: #FF4D4D;
-    --destructive-foreground: #FFFFFF;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: #e6e6e6;
-    --input: #e6e6e6;
-    --ring: #ff8c00;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --chart-1: #ff8c00;
-    --chart-2: #444444;
-    --chart-3: #1b1b1b;
-    --chart-4: #f2f2f2;
-    --chart-5: #e6e6e6;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 224 71% 4%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 221 83% 53%;
 
-    --accent-blue: #f2f2f2;
-    --accent-blue-foreground: #ff8c00;
-    --accent-blue-border: #e6e6e6;
+    --chart-1: 221 83% 53%;
+    --chart-2: 262 83% 58%;
+    --chart-3: 270 95% 75%;
+    --chart-4: 220 14% 96%;
+    --chart-5: 220 13% 91%;
+
+    --accent-blue: 217 91% 60%;
+    --accent-blue-foreground: 224 71% 4%;
+    --accent-blue-border: 220 13% 91%;
   }
 
   .dark {
-    --background: #1b1b1b;
-    --foreground: #f2f2f2;
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
 
-    --card: #444444;
-    --card-foreground: #f2f2f2;
+    --card: 224 71% 4%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: #1b1b1b;
-    --popover-foreground: #f2f2f2;
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: #ff8c00;
-    --primary-foreground: #1b1b1b;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: #e6e6e6;
-    --secondary-foreground: #1b1b1b;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: #444444;
-    --muted-foreground: #e6e6e6;
+    --muted: 215 28% 17%;
+    --muted-foreground: 217.9 10.6% 64.9%;
 
-    --accent: #f2f2f2;
-    --accent-foreground: #1b1b1b;
+    --accent: 215 28% 17%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: #FF4D4D;
-    --destructive-foreground: #FFFFFF;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: #444444;
-    --input: #444444;
-    --ring: #ff8c00;
-    
-    --chart-1: #ff8c00;
-    --chart-2: #f2f2f2;
-    --chart-3: #e6e6e6;
-    --chart-4: #444444;
-    --chart-5: #1b1b1b;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 221 83% 53%;
 
-    --accent-blue: #1b1b1b;
-    --accent-blue-foreground: #ff8c00;
-    --accent-blue-border: #444444;
+    --sidebar-background: 224 71% 4%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 28% 17%;
+    --sidebar-ring: 221 83% 53%;
+
+    --chart-1: 221 83% 53%;
+    --chart-2: 262 83% 58%;
+    --chart-3: 270 95% 75%;
+    --chart-4: 215 28% 17%;
+    --chart-5: 224 71% 4%;
+
+    --accent-blue: 217 91% 60%;
+    --accent-blue-foreground: 210 40% 98%;
+    --accent-blue-border: 215 28% 17%;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
   }
   body {
     @apply bg-background text-foreground;

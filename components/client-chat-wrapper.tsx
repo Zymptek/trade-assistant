@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import { Spinner } from './ui/spinner'
 
-// Dynamically import the Chat component with no SSR
+// Simplified dynamic import - more stable for HMR
 const Chat = dynamic(() => import('./chat').then(mod => ({ default: mod.Chat })), { 
   ssr: false,
   loading: () => <div className="flex justify-center pt-40"><Spinner /></div>
@@ -21,8 +21,10 @@ interface ClientChatWrapperProps {
 
 export function ClientChatWrapper({ id, savedMessages = [], query, models }: ClientChatWrapperProps) {
   return (
-    <Suspense fallback={<div className="flex justify-center pt-40"><Spinner /></div>}>
-      <Chat id={id} savedMessages={savedMessages} query={query} models={models} />
-    </Suspense>
+    <div className="w-full h-full">
+      <Suspense fallback={<div className="flex justify-center pt-40"><Spinner /></div>}>
+        <Chat id={id} savedMessages={savedMessages} query={query} models={models} />
+      </Suspense>
+    </div>
   )
 } 

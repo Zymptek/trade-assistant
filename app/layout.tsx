@@ -47,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn('font-sans antialiased', fontSans.variable)}>
+      <body className={cn('font-sans antialiased m-0 p-0', fontSans.variable)}>
         <SessionProvider>
           <ThemeProvider
             attribute="class"
@@ -56,7 +56,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Header />
-            {children}
+            <main className="min-h-screen">
+              {children}
+            </main>
             <Footer />
             <Toaster />
           </ThemeProvider>
