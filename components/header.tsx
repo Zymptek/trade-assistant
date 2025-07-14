@@ -1,5 +1,4 @@
 import { getCurrentUser } from '@/lib/auth/session'
-import Link from 'next/link'
 import React from 'react'
 import { LogoutButton } from './auth/logout-button'
 import HistoryContainer from './history-container'
@@ -22,9 +21,9 @@ export const Header: React.FC = async () => {
       <div className="flex gap-1 items-center" suppressHydrationWarning>
         {user && (
           <div className="flex items-center">
-            <Link href="/profile" className="text-sm text-muted-foreground mr-3 hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-accent/50">
+            <span className="text-sm text-muted-foreground mr-3 px-2 py-1">
               {user.email}
-            </Link>
+            </span>
           </div>
         )}
         <ModeToggle />

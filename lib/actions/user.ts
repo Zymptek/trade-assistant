@@ -31,7 +31,6 @@ export interface UserProfile {
   tradeRegions?: string
   bio?: string
   preferences?: Record<string, any> | string // Can be string when serialized
-  onboardingCompleted?: boolean | string // Can be string when from Redis
   firstLoginAt?: string
   lastLoginAt?: string
   additionalInfo?: Record<string, any> | string // Can be string when serialized
@@ -79,12 +78,6 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       }
     }
 
-    // If onboardingCompleted is a string "true" or "false", convert to boolean
-    if (profile && typeof profile.onboardingCompleted === 'string') {
-      profile.onboardingCompleted = profile.onboardingCompleted === 'true'
-      console.log(`Converted onboardingCompleted string to boolean: ${profile.onboardingCompleted}`)
-    }
-
     return profile
   } catch (error) {
     console.error('Error fetching user profile:', error)
@@ -114,19 +107,10 @@ export async function saveUserProfile(profile: UserProfile): Promise<boolean> {
       profileToSave.additionalInfo = JSON.stringify(profileToSave.additionalInfo)
     }
     
-    // Convert booleans to strings if necessary (Redis stores everything as strings)
-    if (typeof profileToSave.onboardingCompleted === 'boolean') {
-      profileToSave.onboardingCompleted = profileToSave.onboardingCompleted.toString()
-      console.log(`Converting onboardingCompleted boolean to string: ${profileToSave.onboardingCompleted}`)
-    }
-    
     const key = getUserProfileKey(profile.userId)
     console.log(`Saving profile for userId=${profile.userId} with key=${key}:`, JSON.stringify(profileToSave))
     
     await redis.hmset(key, profileToSave)
-    
-    // We're not using TTL as the RedisWrapper doesn't expose expire function
-    // This is okay as user profiles should be persistent
     
     return true
   } catch (error) {
@@ -157,10 +141,6 @@ export async function updateUserProfile(
     const updatedProfile = {
       ...profile,
       ...updates,
-      // Ensure onboardingCompleted is included if it was in the updates
-      onboardingCompleted: updates.onboardingCompleted !== undefined 
-        ? updates.onboardingCompleted
-        : profile.onboardingCompleted,
       // Always update the lastUpdatedAt timestamp
       lastUpdatedAt: new Date().toISOString()
     }
@@ -212,8 +192,7 @@ export async function trackUserLogin(
         name: userData.name,
         email: userData.email,
         firstLoginAt: now,
-        lastLoginAt: now,
-        onboardingCompleted: false
+        lastLoginAt: now
       })
     } else {
       // Update last login time
