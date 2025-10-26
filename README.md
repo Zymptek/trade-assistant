@@ -50,7 +50,7 @@ Zymptek Trade Assistant is powered by:
 
 ## Get Started
 
-Access the Zymptek Trade Assistant at [trade-assistant.zymptek.com](https://trade-assistant.zymptek.com)
+Access the Zymptek Trade Assistant at [marg.zymptek.com](https://marg.zymptek.com)
 
 ---
 
