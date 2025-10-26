@@ -1,10 +1,5 @@
 # Zymptek Trade Assistant
 
-<div align="center">
-  <img src="./public/images/zymptek_logo_no_background.png" alt="Zymptek Logo" width="150" />
-  <p>AI-powered Custom Broker chat application for international trade professionals</p>
-</div>
-
 > **Note**: The application now uses a new React SVG logo component (`ZymptekLogo`) with a beautiful gradient and optional glow animation throughout the interface.
 
 ## Overview
