@@ -52,3 +52,19 @@ Access the Zymptek Trade Assistant at [marg.zymptek.com](https://marg.zymptek.co
 <div align="center">
   <p>© 2024 Zymptek Inc. All rights reserved.</p>
 </div>
+
+ // "*.usitc.gov",
+                // "*.uspto.gov",
+                // "*.trade.gov",
+                // "*.census.gov",
+                // "*.bls.gov",
+                // "*.wto.org",
+                   // "*.cbp.gov",
+                // "*.finance.yahoo.com",
+                // "*.bloomberg.com",
+                // "*.reddit.com",
+                // "*.whitehouse.gov/news",
+                // "*.whitehouse.gov/briefing-room",
+                // "*.whitehouse.gov/fact-sheets",
+                // "*.whitehouse.gov/speeches",
+                // "*.whitehouse.gov/presidential-actions/"

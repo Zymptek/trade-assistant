@@ -114,7 +114,7 @@ export function ChatPanel({
           </div>
           <div className="text-center space-y-3">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Zymptek Trade Assistant
+              MARG
             </h1>
             <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
               Your AI-powered companion for international trade. Get instant insights on HTS codes, tariffs, and customs regulations.

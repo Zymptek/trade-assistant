@@ -1,15 +1,14 @@
-import { NextResponse } from 'next/server'
+import {
+  SearXNGResponse,
+  SearXNGResult,
+  SearXNGSearchResults,
+  SearchResultItem
+} from '@/lib/types'
+import { Redis } from '@upstash/redis'
 import http from 'http'
 import https from 'https'
 import { JSDOM, VirtualConsole } from 'jsdom'
-import {
-  SearXNGSearchResults,
-  SearXNGResponse,
-  SearXNGResult,
-  SearchResultItem
-} from '@/lib/types'
-import { Agent } from 'http'
-import { Redis } from '@upstash/redis'
+import { NextResponse } from 'next/server'
 import { createClient } from 'redis'
 
 /**
@@ -232,18 +231,41 @@ async function advancedSearchXNGSearch(
       (result: SearXNGResult) => result && !result.img_src
     )
 
-    // Apply domain filtering manually
+    // Apply domain filtering manually with priority logic
     if (includeDomains.length > 0 || excludeDomains.length > 0) {
       generalResults = generalResults.filter(result => {
-        const domain = new URL(result.url).hostname
-        return (
-          (includeDomains.length === 0 ||
-            includeDomains.some(d => domain.includes(d))) &&
-          (excludeDomains.length === 0 ||
-            !excludeDomains.some(d => domain.includes(d)))
-        )
+        const url = new URL(result.url)
+        const hostname = url.hostname
+        
+        // Check exclude domains first
+        if (excludeDomains.length > 0) {
+          if (excludeDomains.some(d => hostname.includes(d.replace(/^\./, '')))) {
+            return false
+          }
+        }
+        
+        // Check include domains
+        if (includeDomains.length > 0) {
+          const matchesInclude = includeDomains.some(d => {
+            const domainPattern = d.replace(/^\./, '').replace(/^https?:\/\//, '')
+            return hostname.includes(domainPattern) || url.pathname.includes(domainPattern)
+          })
+          return matchesInclude
+        }
+        
+        return true
       })
     }
+
+    // Prioritize government sources by moving them to the front
+    generalResults.sort((a, b) => {
+      const aIsGov = a.url.includes('.gov') || a.url.includes('ustr.gov') || a.url.includes('whitehouse.gov') || a.url.includes('cbp.gov')
+      const bIsGov = b.url.includes('.gov') || b.url.includes('ustr.gov') || b.url.includes('whitehouse.gov') || b.url.includes('cbp.gov')
+      
+      if (aIsGov && !bIsGov) return -1
+      if (!aIsGov && bIsGov) return 1
+      return 0
+    })
 
     if (searchDepth === 'advanced') {
       const crawledResults = await Promise.all(
@@ -255,7 +277,7 @@ async function advancedSearchXNGSearch(
         .filter(result => result !== null && isQualityContent(result.content))
         .map(result => result as SearXNGResult)
 
-      const MIN_RELEVANCE_SCORE = 10
+      const MIN_RELEVANCE_SCORE = 60  // High threshold to ensure only authoritative government sources pass through
       generalResults = generalResults
         .map(result => ({
           ...result,
@@ -432,6 +454,23 @@ function calculateRelevanceScore(result: SearXNGResult, query: string): number {
 
     let score = 0
 
+    // CRITICAL: Verify government domain authority FIRST (highest priority)
+    const isSpecificAuthoritativeDomain = 
+      result.url.includes('ustr.gov') ||
+      result.url.includes('whitehouse.gov') ||
+      result.url.includes('cbp.gov') ||
+      result.url.includes('federalregister.gov') ||
+      result.url.includes('usitc.gov') ||
+      result.url.includes('commerce.gov')
+    const isGovernmentDomain = result.url.includes('.gov')
+
+    // MASSIVE boost for authoritative government sources (prevents conflicting data)
+    if (isSpecificAuthoritativeDomain) {
+      score += 100  // Top-tier authority sources
+    } else if (isGovernmentDomain) {
+      score += 50   // Other government sources
+    }
+
     // Check for exact phrase match
     if (lowercaseContent.includes(lowercaseQuery)) {
       score += 30
@@ -464,12 +503,49 @@ function calculateRelevanceScore(result: SearXNGResult, query: string): number {
       const daysSincePublished =
         (now.getTime() - publishDate.getTime()) / (1000 * 3600 * 24)
       if (daysSincePublished < 30) {
-        score += 15
+        score += 25  // Recent authoritative content gets extra boost
       } else if (daysSincePublished < 90) {
         score += 10
       } else if (daysSincePublished < 365) {
         score += 5
       }
+    }
+
+    // Bonus for numerical data (tariff rates, HTS codes, dates)
+    const percentageCount = (result.content.match(/%/g) || []).length
+    if (percentageCount > 0) {
+      score += percentageCount * 8  // Tariff percentages are critical
+    }
+
+    const numericalPatterns = [
+      /\d+%/g,  // Percentage rates
+      /\bHTS\s*:?\s*\d{4,}/gi,  // HTS codes
+      /section\s*30[12]/gi,  // Section 301/302
+      /section\s*232/gi,  // Section 232
+      /IEEPA/gi
+    ]
+    
+    numericalPatterns.forEach(pattern => {
+      const matches = result.content.match(pattern)
+      if (matches) {
+        score += matches.length * 5
+      }
+    })
+
+    // QUALITY FILTERS: Reduce noise from conflicting sources
+    const clickbaitIndicators = [
+      'opinion', 'editorial', 'analysis', 'blog post', 'opinion piece'
+    ]
+    clickbaitIndicators.forEach(indicator => {
+      if (lowercaseContent.includes(indicator) && !isGovernmentDomain) {
+        score -= 20  // Heavily penalize opinion content from non-gov sources
+      }
+    })
+
+    // Penalize opinion/news sites for tariff data (they often have outdated/inaccurate info)
+    const newsDomains = ['nytimes.com', 'cnn.com', 'reuters.com', 'bloomberg.com', 'wsj.com']
+    if (newsDomains.some(domain => result.url.includes(domain))) {
+      score -= 15  // Reduce but don't eliminate completely
     }
 
     // Penalize very short content
@@ -483,7 +559,7 @@ function calculateRelevanceScore(result: SearXNGResult, query: string): number {
     const highlightCount = (result.content.match(/<mark>/g) || []).length
     score += highlightCount * 2
 
-    return score
+    return Math.max(0, score)  // Ensure non-negative scores
   } catch (error) {
     //console.error('Error in calculateRelevanceScore:', error)
     return 0 // Return 0 if scoring fails

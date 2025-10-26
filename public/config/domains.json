@@ -2,13 +2,13 @@
     "domains":
         {
             "Include": [
-                "*.ustr.gov",
-                "*.usitc.gov",
+                 "*.usitc.gov",
                 "*.uspto.gov",
                 "*.trade.gov",
                 "*.census.gov",
                 "*.bls.gov",
                 "*.wto.org",
+                "*.cbp.gov",
                 "*.finance.yahoo.com",
                 "*.bloomberg.com",
                 "*.reddit.com",
@@ -16,17 +16,20 @@
                 "*.whitehouse.gov/briefing-room",
                 "*.whitehouse.gov/fact-sheets",
                 "*.whitehouse.gov/speeches",
-                "*.whitehouse.gov/presidential-actions/"
+                "*.whitehouse.gov/presidential-actions/",
+                "ustr.gov",
+                "wtcdenver.org/tariffs/",
+                ""
             ],
             "Exclude": [
-                "*.indamart.com",
-                "*.alibaba.com",
-                "*.amazon.com",
-                "*.ebay.com",
-                "*.walmart.com",
-                "*.target.com",
-                "*.costco.com",
-                "*.bestbuy.com"
+                "indamart.com",
+                "alibaba.com",
+                "amazon.com",
+                "ebay.com",
+                "walmart.com",
+                "target.com",
+                "costco.com",
+                "bestbuy.com"
             ]
         }
 }
