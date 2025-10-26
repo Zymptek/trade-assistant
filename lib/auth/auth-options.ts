@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      // Add user ID to the session
+      // Add user ID to the session from JWT token
       if (session.user && token.sub) {
         session.user.id = token.sub;
       }
@@ -33,24 +33,6 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
       }
       return token;
-    },
-    // Ensure proper redirect after sign in
-    async redirect({ url, baseUrl }) {
-      // Use NEXTAUTH_URL if available, otherwise use the detected baseUrl
-      const actualBaseUrl = process.env.NEXTAUTH_URL || baseUrl;
-      
-      // If url is relative, make it absolute
-      if (url.startsWith('/')) {
-        return `${actualBaseUrl}${url}`;
-      }
-      
-      // If url is on same origin, allow it
-      if (new URL(url).origin === actualBaseUrl) {
-        return url;
-      }
-      
-      // Otherwise, redirect to base
-      return actualBaseUrl;
     },
   },
   pages: {

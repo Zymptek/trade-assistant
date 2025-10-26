@@ -27,14 +27,11 @@ export async function middleware(request: NextRequest) {
   const isApiRoute = pathname.startsWith('/api');
   
   try {
-    // Detect if we should use secure cookies based on protocol (HTTPS)
-    const isHttps = protocol === 'https:';
-    
     // Get JWT token from request with secure cookie
     const token = await getToken({ 
       req: request, 
       secret: process.env.NEXTAUTH_SECRET,
-      secureCookie: isHttps,
+      secureCookie: process.env.NODE_ENV === 'production',
     })
     
     // Handle login page separately to ensure consistent behavior

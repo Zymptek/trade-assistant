@@ -2,19 +2,15 @@
 
 import { Button } from '@/components/ui/button';
 import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 
-function LoginButtonContent() {
+export default function LoginButton() {
   const [isLoading, setIsLoading] = useState(false);
-  const searchParams = useSearchParams();
 
   const handleLogin = async () => {
     try {
       setIsLoading(true);
-      // Get callback URL from query params (set by middleware) or default to '/'
-      const callbackUrl = searchParams.get('callbackUrl') || '/';
-      await signIn('google', { callbackUrl });
+      await signIn('google', { callbackUrl: '/' });
     } catch (error) {
       console.error('Error signing in:', error);
       setIsLoading(false);
@@ -44,17 +40,5 @@ function LoginButtonContent() {
         </>
       )}
     </Button>
-  );
-}
-
-export default function LoginButton() {
-  return (
-    <Suspense fallback={
-      <Button disabled className="w-full flex items-center justify-center gap-2">
-        <span>Loading...</span>
-      </Button>
-    }>
-      <LoginButtonContent />
-    </Suspense>
   );
 }
